@@ -9,3 +9,11 @@ As a user I want to go to web page and find job offers for Java developers.
 5. User choose one of offers;
 6. User read all info about an offer;
 7. User apply to the offer;
+
+
+
+Modules:
+
+1. check our user registered or not = AuthorizationModule;
+2. send all the offers to the app = OffersSender;
+3. sort all offers = OffersSorter;
