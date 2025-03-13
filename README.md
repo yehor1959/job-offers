@@ -1,6 +1,6 @@
 Happy path scenario:
 
-As a user I want to go to web page and find job offers for Java developers. 
+As a user I want to go to a web page and find job offers for Java developers. 
 
 1. There are no offers in external HTTP server;
 2. Scheduler run 1st time and made GET to external server and system added 0 offers to the database;
