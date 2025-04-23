@@ -5,7 +5,10 @@ import org.junit.jupiter.api.Test;
 class LoginAndRegisterFacadeTest {
 
     @Test
-    public void should_throw_exception_when_user_not_found() {}
+    public void should_throw_exception_when_user_not_found() {
+        // given
+        String nonExistingUsername = "ghostUser";
+    }
 
     @Test
     public void should_find_user_by_user_name() {}
