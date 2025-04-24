@@ -22,6 +22,6 @@ public class LoginAndRegisterFacade {
     public UserDto findUserByUsername(String username) {
         return userRepository.findByUsername(username)
                 .map(userMapper::toDto)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with username: " + username));
+                .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
     }
 }
