@@ -1,27 +1,29 @@
 package com.jobOffers.jobOffers.domain.loginandregister;
 
 import com.jobOffers.jobOffers.domain.loginandregister.dto.RegisterUserDto;
+import com.jobOffers.jobOffers.domain.loginandregister.dto.RegistrationResultDto;
 import com.jobOffers.jobOffers.domain.loginandregister.dto.UserDto;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public class LoginAndRegisterFacade {
-    private final UserRepository userRepository;
-    private final UserMapper userMapper;
 
-    public UserDto registerUser(RegisterUserDto registerUserDto) {
-        if (userRepository.existsByUsername(registerUserDto.getUsername())) {
-            throw new IllegalArgumentException("User already exists with username: " + registerUserDto.getUsername());
-        }
+    private static final String USER_NOT_FOUND = "User not found with username: ";
 
-        User newUser = userMapper.toEntity(registerUserDto);
-        User saved = userRepository.save(newUser);
-        return userMapper.toDto(saved);
+    private final LoginRepository loginRepository;
+
+    public RegistrationResultDto registerUser(RegisterUserDto registerUserDto) {
+        final User user = User.builder()
+                .username(registerUserDto.username())
+                .password(registerUserDto.password())
+                .build();
+        User savedUser = loginRepository.save(user);
+        return new RegistrationResultDto(savedUser.id(), true, savedUser.username());
     }
 
-    public UserDto findUserByUsername(String username) {
-        return userRepository.findByUsername(username)
-                .map(userMapper::toDto)
-                .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));
+    public UserDto findByUserUsername(String username) {
+        return loginRepository.findByUsername(username)
+                .map(user -> new UserDto(user.id(), user.username(), user.password()))
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
     }
 }

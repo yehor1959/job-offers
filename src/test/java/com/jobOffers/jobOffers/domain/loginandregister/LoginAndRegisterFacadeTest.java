@@ -1,85 +1,61 @@
 package com.jobOffers.jobOffers.domain.loginandregister;
 
 import com.jobOffers.jobOffers.domain.loginandregister.dto.RegisterUserDto;
+import com.jobOffers.jobOffers.domain.loginandregister.dto.RegistrationResultDto;
 import com.jobOffers.jobOffers.domain.loginandregister.dto.UserDto;
-import org.junit.jupiter.api.BeforeEach;
+import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Optional;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-@ExtendWith(MockitoExtension.class)
 class LoginAndRegisterFacadeTest {
 
-    @Mock
-    private UserRepository userRepository;
-
-    private LoginAndRegisterFacade loginAndRegisterFacade;
-
-    @BeforeEach
-    void setUp() {
-        loginAndRegisterFacade = new LoginAndRegisterFacade(userRepository, new UserMapper());
-    }
+    LoginAndRegisterFacade loginAndRegisterFacade = new LoginAndRegisterFacade(
+            new InMemoryLoginRepository()
+    );
 
     @Test
-    public void should_throw_exception_when_user_not_found() {
+    public void should_register_user() {
         // given
-        String nonExistingUsername = "ghostUser";
-        when(userRepository.findByUsername(nonExistingUsername)).thenReturn(Optional.empty());
+        RegisterUserDto registerUserDto = new RegisterUserDto("username", "pass");
 
-        // when & then
-        UserNotFoundException exception = assertThrows(UserNotFoundException.class,
-                () -> loginAndRegisterFacade.findUserByUsername(nonExistingUsername));
+        // when
+        RegistrationResultDto registerUser = loginAndRegisterFacade.registerUser(registerUserDto);
 
-        assertEquals("User not found with username: ghostUser", exception.getMessage());
+        // then
+        assertAll(
+                () -> assertThat(registerUser.created()).isTrue(),
+                () -> assertThat(registerUser.username()).isEqualTo("username")
+        );
     }
 
     @Test
     public void should_find_user_by_user_name() {
         // given
-        String username = "john_doe";
-        User user = new User(username, "securePassword123");
-        user.setId(1L);
-
-        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        RegisterUserDto registerUserDto = new RegisterUserDto("username", "pass");
+        RegistrationResultDto register = loginAndRegisterFacade.registerUser(registerUserDto);
 
         // when
-        UserDto result = loginAndRegisterFacade.findUserByUsername(username);
+        UserDto userByUsername = loginAndRegisterFacade.findByUserUsername(register.username());
 
         // then
-        assertNotNull(result);
-        assertEquals(1L, result.getId());
-        assertEquals("john_doe", result.getUsername());
+        assertThat(userByUsername).isEqualTo(new UserDto(register.id(), "username", "pass"));
     }
 
     @Test
-    public void should_register_user_successfully_with_valid_credentials() {
+    public void should_throw_exception_when_user_not_found() {
         // given
-        RegisterUserDto registerUserDto = new RegisterUserDto("new_user", "strongPassword!");
-        User userToSave = new User("new_user", "strongPassword!");
-        User savedUser = new User("new_user", "strongPassword!");
-        savedUser.setId(10L);
-
-        when(userRepository.existsByUsername("new_user")).thenReturn(false);
-        when(userRepository.save(any(User.class))).thenReturn(savedUser);
+        String username = "someUser";
 
         // when
-        UserDto result = loginAndRegisterFacade.registerUser(registerUserDto);
+        Throwable thrown = catchThrowable(() -> loginAndRegisterFacade.findByUserUsername(username));
 
         // then
-        assertNotNull(result);
-        assertEquals(10L, result.getId());
-        assertEquals("new_user", result.getUsername());
-
-        verify(userRepository).existsByUsername("new_user");
-        verify(userRepository).save(any(User.class));
+        AssertionsForClassTypes.assertThat(thrown)
+                .isInstanceOf(UsernameNotFoundException.class)
+                .hasMessage("User not found with username: someUser");
     }
 
 }
