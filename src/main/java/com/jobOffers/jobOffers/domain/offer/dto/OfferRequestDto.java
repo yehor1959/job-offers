@@ -1,10 +1,9 @@
-package com.jobOffers.jobOffers.domain.offer;
+package com.jobOffers.jobOffers.domain.offer.dto;
 
 import lombok.Builder;
 
 @Builder
-record Offer(
-        String id,
+public record OfferRequestDto(
         String companyName,
         String position,
         String salary,
