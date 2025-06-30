@@ -1,6 +1,6 @@
 WYMAGANIA
 
-# jako klient aplikacji chcę widzieć oferty pracy dla Junior Java Developera
+# Jako klient aplikacji chcę widzieć oferty pracy dla Junior Java Developera
 
 1. Korzystamy ze zdalnego serwera HTTP (skrypt który pobiera oferty ze stron WWW)
 2. Klient musi używać tokena, żeby zobaczyć oferty
