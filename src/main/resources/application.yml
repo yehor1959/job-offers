@@ -1,0 +1,14 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/job-offers
+
+job-offers:
+  offers:
+    http:
+      client:
+        config:
+          uri: http
+          port: 9090
+          connectionTimeout: 5000
+          readTimeout: 5000
