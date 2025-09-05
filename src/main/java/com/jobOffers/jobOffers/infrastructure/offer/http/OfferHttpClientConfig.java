@@ -10,7 +10,7 @@ import org.springframework.web.client.RestTemplate;
 import java.time.Duration;
 
 @Configuration
-public class OfferFetcherClientConfig {
+public class OfferHttpClientConfig {
 
     @Bean
     public RestTemplateResponseErrorHandler restTemplateResponseErrorHandler() {
@@ -29,9 +29,10 @@ public class OfferFetcherClientConfig {
                 .build();
     }
 
-    public OfferFetcher remoteOfferFetcherClient(RestTemplate restTemplate,
+    @Bean
+    public OfferFetcher remoteOfferClient(RestTemplate restTemplate,
                                                  @Value("${job-offers.offers.http.client.config.uri}") String uri,
                                                  @Value("${job-offers.offers.http.client.config.port}") int port) {
-        return new OfferFetcherRestTemplate(restTemplate, uri, port);
+        return new OfferHttpClient(restTemplate, uri, port);
     }
 }
