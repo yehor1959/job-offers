@@ -13,13 +13,12 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.Collections;
 import java.util.List;
 
 @AllArgsConstructor
 @Log4j2
-public class OfferFetcherRestTemplate implements OfferFetcher {
-
-    public static final String RANDOM_NUMBER_SERVICE_PATH = "/api/v1.0/random";
+public class OfferHttpClient implements OfferFetcher {
 
     private final RestTemplate restTemplate;
     private final String uri;
@@ -31,28 +30,24 @@ public class OfferFetcherRestTemplate implements OfferFetcher {
         HttpHeaders headers = new HttpHeaders();
         final HttpEntity<HttpHeaders> requestEntity = new HttpEntity<>(headers);
         try {
-            ResponseEntity<List<JobOfferResponse>> response = makeGetRequest(requestEntity);
-            return response.getBody();
+            String urlForService = getUrlForService("/offers");
+            String url = UriComponentsBuilder.fromHttpUrl(urlForService).toUriString();
+            ResponseEntity<List<JobOfferResponse>> response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, new ParameterizedTypeReference<>() {
+            });
+            final List<JobOfferResponse> body = response.getBody();
+            if (body == null) {
+                log.info("Response Body was null returning empty list");
+                return Collections.emptyList();
+            }
+            log.info("Success Response Body Returned: " + body);
+            return body;
         } catch (ResourceAccessException e) {
             log.error("Error while fetching job offers using http client: " + e.getMessage());
+            return Collections.emptyList();
         }
-        return List.of();
-    }
-
-    private ResponseEntity<List<JobOfferResponse>> makeGetRequest(HttpEntity<HttpHeaders> requestEntity) {
-        final String url = UriComponentsBuilder.fromHttpUrl(getUrlForService(RANDOM_NUMBER_SERVICE_PATH))
-                .toUriString();
-        ResponseEntity<List<JobOfferResponse>> response = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                requestEntity,
-                new ParameterizedTypeReference<>() {}
-        );
-
-        return response;
     }
 
     private String getUrlForService(String service) {
-        return uri + ":" + port;
+        return uri + ":" + port + service;
     }
 }
