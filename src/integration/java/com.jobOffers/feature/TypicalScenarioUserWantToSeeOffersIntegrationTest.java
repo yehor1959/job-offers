@@ -28,6 +28,9 @@ public class TypicalScenarioUserWantToSeeOffersIntegrationTest extends BaseInteg
 
         List<JobOfferResponse> jobOfferResponses = offerHttpClient.fetchOffers();
 
+        //  step 1, obok HTTP pojavie sie scheduler i ten scheduler pobiera z metodki w OfferFacade fetchAllOffersAndSaveAllIfNotExists
+        //  step 2, uruchmić Scheduler w testie integraciynym i dodać properties
+        //  step
         //  step 2: scheduler ran 1st time and made GET to external server and system added 0 offers to database
         //  step 3: user tried to get JWT token by requesting POST /token with username=someUser, password=somePassword and system returned UNAUTHORIZED(401)
         //  step 4: user made GET /offers with no jwt token and system returned UNAUTHORIZED(401)
