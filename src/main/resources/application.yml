@@ -5,6 +5,7 @@ spring:
 
 job-offers:
   offers:
+    offersRunOccurrence: "0 0 12 * * 6"
     http:
       client:
         config:
