@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Configuration
-public class OfferConfiguration {
+class OfferFacadeConfiguration {
 
     @Bean
-    OfferRepository offerRepository() {
-        return new OfferRepository() {
+    OfferFacade offerFacade(OfferFetcher offerFetcher) {
+        OfferRepository offerRepository = new OfferRepository() {
             @Override
             public boolean existsByOfferUrl(String offerUrl) {
                 return false;
@@ -24,12 +24,12 @@ public class OfferConfiguration {
 
             @Override
             public List<Offer> findAll() {
-                return List.of();
+                return null;
             }
 
             @Override
             public List<Offer> saveAll(List<Offer> offers) {
-                return List.of();
+                return null;
             }
 
             @Override
@@ -42,15 +42,7 @@ public class OfferConfiguration {
                 return null;
             }
         };
+        OfferService offerService = new OfferService(offerFetcher, offerRepository);
+        return new OfferFacade(offerRepository, offerService);
     }
-
-    @Bean
-    OfferService offerService(OfferFetcher fetcher, OfferRepository offerRepository) {
-        return new OfferService(fetcher, offerRepository);
-    }
-
-//    @Bean
-//    OfferFacade offerFacade(OfferRepository offerRepository, OfferService offerService) {
-//        return new OfferFacade(offerRepository, offerService);
-//    }
 }

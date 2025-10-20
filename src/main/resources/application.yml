@@ -14,3 +14,12 @@ job-offers:
           port: 5057
           connectionTimeout: 1000
           readTimeout: 5000
+
+  http:
+    offers:
+      scheduler:
+        request:
+          delay: PT3H
+
+  scheduling:
+    enabled: true

@@ -8,14 +8,15 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 class OfferService {
 
-    private final OfferFetcher fetcher;
+    private final OfferFetcher offerFetcher;
     private final OfferRepository offerRepository;
 
     List<Offer> fetchAllOffersAndSaveAllIfNotExist() {
         List<Offer> jobOffers = fetchOffers();
-        final List<Offer> offers = filterNotExistingOffers(jobOffers);
+//        final List<Offer> offers = filterNotExistingOffers(jobOffers);
         try {
-            return offerRepository.saveAll(offers);
+//            return offerRepository.saveAll(offers);
+            return jobOffers;
         } catch (OfferDuplicateException duplicateException) {
             throw new OfferSavingException(duplicateException.getMessage(), jobOffers);
         }
@@ -29,7 +30,7 @@ class OfferService {
     }
 
     private List<Offer> fetchOffers() {
-        return fetcher.fetchOffers()
+        return offerFetcher.fetchOffers()
                 .stream()
                 .map(OfferMapper::mapFromJobOfferResponseToOffer)
                 .toList();
