@@ -28,7 +28,7 @@ public class OfferFacade {
     }
 
     public OfferResponseDto findOfferById(String id) {
-        return offerRepository.findById(id)
+        return offerRepository.findById(Long.valueOf(id))
                 .map(OfferMapper::mapFromOfferToOfferDto)
                 .orElseThrow(() -> new OfferNotFoundException(id));
     }

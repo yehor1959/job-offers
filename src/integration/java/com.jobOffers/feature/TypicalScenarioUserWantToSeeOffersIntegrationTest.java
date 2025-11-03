@@ -5,6 +5,7 @@ import com.jobOffers.BaseIntegrationTest;
 import com.jobOffers.SampleJobOfferResponse;
 import com.jobOffers.jobOffers.domain.offer.OfferFetcher;
 import com.jobOffers.jobOffers.domain.offer.dto.JobOfferResponse;
+import com.jobOffers.jobOffers.domain.offer.dto.OfferResponseDto;
 import com.jobOffers.jobOffers.infrastructure.offer.scheduler.HttpOfferScheduler;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,7 @@ public class TypicalScenarioUserWantToSeeOffersIntegrationTest extends BaseInteg
         List<JobOfferResponse> jobOfferResponses = offerHttpClient.fetchOffers();
 
         //  step 2: scheduler run 1st time and made GET to external server and system added 0 offers to database
-        offerScheduler.fetchAllOffersAndSaveAllIfNotExists();
+        List<OfferResponseDto> offerResponseDtos = offerScheduler.fetchAllOffersAndSaveAllIfNotExists();
 
         //  step 1, HttpOfferScheduler
         //  step 1, application.yml

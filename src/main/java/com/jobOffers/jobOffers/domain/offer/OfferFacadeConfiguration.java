@@ -3,45 +3,10 @@ package com.jobOffers.jobOffers.domain.offer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.List;
-import java.util.Optional;
-
 @Configuration
 class OfferFacadeConfiguration {
-
     @Bean
-    OfferFacade offerFacade(OfferFetcher offerFetcher) {
-        OfferRepository offerRepository = new OfferRepository() {
-            @Override
-            public boolean existsByOfferUrl(String offerUrl) {
-                return false;
-            }
-
-            @Override
-            public Optional<Offer> findByOfferUrl(String offerUrl) {
-                return Optional.empty();
-            }
-
-            @Override
-            public List<Offer> findAll() {
-                return null;
-            }
-
-            @Override
-            public List<Offer> saveAll(List<Offer> offers) {
-                return null;
-            }
-
-            @Override
-            public Optional<Offer> findById(String id) {
-                return Optional.empty();
-            }
-
-            @Override
-            public Offer save(Offer offer) {
-                return null;
-            }
-        };
+    OfferFacade offerFacade(OfferFetcher offerFetcher, OfferRepository offerRepository) {
         OfferService offerService = new OfferService(offerFetcher, offerRepository);
         return new OfferFacade(offerRepository, offerService);
     }
