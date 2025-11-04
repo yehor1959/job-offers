@@ -10,6 +10,7 @@ import com.jobOffers.jobOffers.infrastructure.offer.scheduler.HttpOfferScheduler
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
@@ -29,21 +30,24 @@ public class TypicalScenarioUserWantToSeeOffersIntegrationTest extends BaseInteg
                 .willReturn(WireMock.aResponse()
                 .withStatus(HttpStatus.OK.value())
                 .withHeader("Content-Type", "application/json")
-                .withBody(bodyWithFourOffersJson())));
+                .withBody(bodyWithZeroOffersJson())));
 
         List<JobOfferResponse> jobOfferResponses = offerHttpClient.fetchOffers();
 
         //  step 2: scheduler run 1st time and made GET to external server and system added 0 offers to database
-        List<OfferResponseDto> offerResponseDtos = offerScheduler.fetchAllOffersAndSaveAllIfNotExists();
+        // given && when
+        List<OfferResponseDto> newOffers = offerScheduler.fetchAllOffersAndSaveAllIfNotExists();
+        // then
+        assertThat(newOffers).isEmpty();
 
-        //  step 1, HttpOfferScheduler
-        //  step 1, application.yml
-        //  step 1, application-integration.yml
         //  step 1, OfferService
-        //  step 1, OfferFacade -> OfferFacadeConfiguration
-        //  step 1, TypicalScenarioUserWantToSeeOffersIntegrationTest
-        //  step 1, HttpOffersSchedulerTest
-        //  step 1, HttpOffersSchedulerConfig
+        //  step 1, TypicalIntegrationTest
+        //  step 1, pom.xml
+        //  step 1, OfferRepository
+        //  step 1, Offer
+        //  step 1, InMemoryOfferRepository saveAll, save
+        //  step 1,
+        //  step 1,
         //  step 2, uruchmić Scheduler w testie integraciynym i dodać properties
         //  step
         //  step 2: scheduler ran 1st time and made GET to external server and system added 0 offers to database

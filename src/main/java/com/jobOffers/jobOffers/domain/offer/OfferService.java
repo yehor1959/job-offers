@@ -21,17 +21,17 @@ class OfferService {
         }
     }
 
-    private List<Offer> filterNotExistingOffers(final List<Offer> notFilteredOffers) {
-        return notFilteredOffers.stream()
-                .filter(offer -> !offer.offerUrl().isEmpty())
-                .filter(offer -> !offerRepository.existsByOfferUrl(offer.offerUrl()))
-                .collect(Collectors.toList());
-    }
-
     private List<Offer> fetchOffers() {
         return offerFetcher.fetchOffers()
                 .stream()
                 .map(OfferMapper::mapFromJobOfferResponseToOffer)
                 .toList();
+    }
+
+    private List<Offer> filterNotExistingOffers(final List<Offer> notFilteredOffers) {
+        return notFilteredOffers.stream()
+                .filter(offer -> !offer.offerUrl().isEmpty())
+                .filter(offer -> !offerRepository.existsByOfferUrl(offer.offerUrl()))
+                .collect(Collectors.toList());
     }
 }

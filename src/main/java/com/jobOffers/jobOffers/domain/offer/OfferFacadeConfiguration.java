@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 class OfferFacadeConfiguration {
+
     @Bean
     OfferFacade offerFacade(OfferFetcher offerFetcher, OfferRepository offerRepository) {
         OfferService offerService = new OfferService(offerFetcher, offerRepository);

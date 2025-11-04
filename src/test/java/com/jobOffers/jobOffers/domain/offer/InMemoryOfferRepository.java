@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.stream.StreamSupport;
 
 public class InMemoryOfferRepository implements OfferRepository {
 
@@ -28,34 +29,46 @@ public class InMemoryOfferRepository implements OfferRepository {
     }
 
     @Override
-    public Optional<Offer> findByOfferUrl(String offerUrl) {
-        return Optional.of(database.get(offerUrl));
-    }
-
-    @Override
     public <S extends Offer> List<S> saveAll(Iterable<S> entities) {
-        return List.of();
-    }
-
-    @Override
-    public Optional<Offer> findById(Long aLong) {
-        return Optional.empty();
-    }
-
-    @Override
-    public boolean existsById(Long aLong) {
-        return false;
-    }
-
-    @Override
-    public List<Offer> findAll() {
-        return database.values()
-                .stream()
+        return StreamSupport.stream(entities.spliterator(), false)
+                .map(this::save)
                 .toList();
     }
 
     @Override
-    public Iterable<Offer> findAllById(Iterable<Long> longs) {
+    public Optional<Offer> findById(String id) {
+        return Optional.ofNullable(database.get(id));
+    }
+
+    @Override
+    public boolean existsById(String s) {
+        return false;
+    }
+
+    @Override
+    public <S extends Offer> S save(S entity) {
+        if (database.values().stream().anyMatch(offer -> offer.offerUrl().equals(entity.offerUrl()))) {
+            throw new OfferDuplicateException(entity.offerUrl());
+        }
+        UUID id = UUID.randomUUID();
+        Offer offer = new Offer(
+                id.toString(),
+                entity.companyName(),
+                entity.position(),
+                entity.salary(),
+                entity.offerUrl()
+        );
+        database.put(id.toString(), offer);
+        return (S) offer;
+    }
+
+    @Override
+    public List<Offer> findAll() {
+        return database.values().stream().toList();
+    }
+
+    @Override
+    public Iterable<Offer> findAllById(Iterable<String> strings) {
         return null;
     }
 
@@ -65,7 +78,7 @@ public class InMemoryOfferRepository implements OfferRepository {
     }
 
     @Override
-    public void deleteById(Long aLong) {
+    public void deleteById(String s) {
 
     }
 
@@ -75,7 +88,7 @@ public class InMemoryOfferRepository implements OfferRepository {
     }
 
     @Override
-    public void deleteAllById(Iterable<? extends Long> longs) {
+    public void deleteAllById(Iterable<? extends String> strings) {
 
     }
 
@@ -91,7 +104,7 @@ public class InMemoryOfferRepository implements OfferRepository {
 
     @Override
     public List<Offer> findAll(Sort sort) {
-        return List.of();
+        return null;
     }
 
     @Override
@@ -106,7 +119,7 @@ public class InMemoryOfferRepository implements OfferRepository {
 
     @Override
     public <S extends Offer> List<S> insert(Iterable<S> entities) {
-        return List.of();
+        return null;
     }
 
     @Override
@@ -116,12 +129,12 @@ public class InMemoryOfferRepository implements OfferRepository {
 
     @Override
     public <S extends Offer> List<S> findAll(Example<S> example) {
-        return List.of();
+        return null;
     }
 
     @Override
     public <S extends Offer> List<S> findAll(Example<S> example, Sort sort) {
-        return List.of();
+        return null;
     }
 
     @Override
@@ -142,36 +155,5 @@ public class InMemoryOfferRepository implements OfferRepository {
     @Override
     public <S extends Offer, R> R findBy(Example<S> example, Function<FluentQuery.FetchableFluentQuery<S>, R> queryFunction) {
         return null;
-    }
-
-//    @Override
-//    public List<Offer> saveAll(List<Offer> offers) {
-//        return offers.stream()
-//                .map(this::save)
-//                .toList();
-//    }
-//
-//    @Override
-//    public Optional<Offer> findById(String id) {
-//        return Optional.ofNullable(database.get(id));
-//    }
-
-    @Override
-    public Offer save(Offer entity) {
-        if (database.values()
-                .stream()
-                .anyMatch(offer -> offer.offerUrl().equals(entity.offerUrl()))) {
-            throw new OfferDuplicateException(entity.offerUrl());
-        }
-        UUID id = UUID.randomUUID();
-        Offer offer = new Offer(
-                id.toString(),
-                entity.companyName(),
-                entity.position(),
-                entity.salary(),
-                entity.offerUrl()
-        );
-        database.put(id.toString(), offer);
-        return offer;
     }
 }
