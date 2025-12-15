@@ -35,13 +35,12 @@ public class TypicalScenarioUserWantToSeeOffersIntegrationTest extends BaseInteg
     public void user_want_to_see_offers_but_have_to_be_logged_in_and_external_server_should_have_some_offers() throws Exception {
 
         //  step 1: there are no offers in external HTTP server (http://ec2-3-120-147-150.eu-central-1.compute.amazonaws.com:5057/offers)
+        // given && when && then
         wireMockServer.stubFor(WireMock.get("/offers")
                 .willReturn(WireMock.aResponse()
                 .withStatus(HttpStatus.OK.value())
                 .withHeader("Content-Type", "application/json")
-                .withBody(bodyWithZeroOffersJson())));
-
-        List<JobOfferResponse> jobOfferResponses = offerHttpClient.fetchOffers();
+                .withBody(bodyWithFourOffersJson())));
 
         //  step 2: scheduler run 1st time and made GET to external server and system added 0 offers to database
         // given && when
@@ -57,8 +56,10 @@ public class TypicalScenarioUserWantToSeeOffersIntegrationTest extends BaseInteg
         //  step 6: user tried to get JWT token by requesting POST /token with username=someUser, password=somePassword and system returned OK(200) and jwttoken=AAAA.BBBB.CCC
         //  step 7: user made GET /offers with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 0 offers
         // given
+        String offersUrl = "/offers";
         // when
-        ResultActions perform = mockMvc.perform(get("/offers"));
+        ResultActions perform = mockMvc.perform(get(offersUrl)
+                .contentType(MediaType.APPLICATION_JSON_VALUE));
         // then
         MvcResult mvcResult = perform
                 .andExpect(status().isOk())
