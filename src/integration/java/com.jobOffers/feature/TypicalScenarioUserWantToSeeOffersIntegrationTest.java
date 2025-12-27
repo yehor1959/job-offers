@@ -38,9 +38,9 @@ public class TypicalScenarioUserWantToSeeOffersIntegrationTest extends BaseInteg
         // given && when && then
         wireMockServer.stubFor(WireMock.get("/offers")
                 .willReturn(WireMock.aResponse()
-                .withStatus(HttpStatus.OK.value())
-                .withHeader("Content-Type", "application/json")
-                .withBody(bodyWithFourOffersJson())));
+                        .withStatus(HttpStatus.OK.value())
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(bodyWithFourOffersJson())));
 
         //  step 2: scheduler run 1st time and made GET to external server and system added 0 offers to database
         // given && when
@@ -69,7 +69,8 @@ public class TypicalScenarioUserWantToSeeOffersIntegrationTest extends BaseInteg
         String json = mvcResult.getResponse().getContentAsString();
 
         List<OfferResponseDto> offers =
-                objectMapper.readValue(json, new TypeReference<>() {});
+                objectMapper.readValue(json, new TypeReference<>() {
+                });
 
         assertThat(offers).isNotNull();
         assertThat(offers).isNotEmpty();
@@ -77,7 +78,23 @@ public class TypicalScenarioUserWantToSeeOffersIntegrationTest extends BaseInteg
         //  step 8: there are 2 new offers in external HTTP server
         //  step 9: scheduler ran 2nd time and made GET to external server and system added 2 new offers with ids: 1000 and 2000 to database
         //  step 10: user made GET /offers with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 2 offers with ids: 1000 and 2000
+
+
         //  step 11: user made GET /offers/9999 and system returned NOT_FOUND(404) with message “Offer with id 9999 not found”
+        // given
+        String nonExistingOfferUrl = "/offers/9999";
+        // when
+        ResultActions performGetResultsWithNotExistingOfferUrl = mockMvc.perform(get(nonExistingOfferUrl));
+        // then
+        performGetResultsWithNotExistingOfferUrl.andExpect(status().isNotFound())
+                .andExpect(content().json("""
+                        {
+                                                "message": "Not found for id: notExistingId",
+                                                "status": "NOT_FOUND"
+                                                }
+                        """.trim()
+                ));
+
         //  step 12: user made GET /offers/1000 and system returned OK(200) with offer
         //  step 13: there are 2 new offers in external HTTP server
         //  step 14: scheduler ran 3rd time and made GET to external server and system added 2 new offers with ids: 3000 and 4000 to database
