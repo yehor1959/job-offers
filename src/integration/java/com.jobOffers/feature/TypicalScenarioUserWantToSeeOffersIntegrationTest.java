@@ -5,7 +5,6 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.jobOffers.BaseIntegrationTest;
 import com.jobOffers.SampleJobOfferResponse;
 import com.jobOffers.jobOffers.domain.offer.OfferFetcher;
-import com.jobOffers.jobOffers.domain.offer.dto.JobOfferResponse;
 import com.jobOffers.jobOffers.domain.offer.dto.OfferResponseDto;
 import com.jobOffers.jobOffers.infrastructure.offer.scheduler.HttpOfferScheduler;
 import org.junit.jupiter.api.Test;
@@ -49,6 +48,8 @@ public class TypicalScenarioUserWantToSeeOffersIntegrationTest extends BaseInteg
         assertThat(newOffers).isEmpty();
 
         //  step 1, OfferService
+        //  step 1, TypicalIntegrationTest
+
         //  step 2: scheduler ran 1st time and made GET to external server and system added 0 offers to database
         //  step 3: user tried to get JWT token by requesting POST /token with username=someUser, password=somePassword and system returned UNAUTHORIZED(401)
         //  step 4: user made GET /offers with no jwt token and system returned UNAUTHORIZED(401)
@@ -82,14 +83,14 @@ public class TypicalScenarioUserWantToSeeOffersIntegrationTest extends BaseInteg
 
         //  step 11: user made GET /offers/9999 and system returned NOT_FOUND(404) with message “Offer with id 9999 not found”
         // given
-        String nonExistingOfferUrl = "/offers/9999";
+        String nonExistingOfferUrl = "/offers/nonExistingOfferUrl";
         // when
         ResultActions performGetResultsWithNotExistingOfferUrl = mockMvc.perform(get(nonExistingOfferUrl));
         // then
         performGetResultsWithNotExistingOfferUrl.andExpect(status().isNotFound())
                 .andExpect(content().json("""
                         {
-                                                "message": "Not found for id: notExistingId",
+                                                "message": "Offer with id nonExistingOfferUrl not found",
                                                 "status": "NOT_FOUND"
                                                 }
                         """.trim()
