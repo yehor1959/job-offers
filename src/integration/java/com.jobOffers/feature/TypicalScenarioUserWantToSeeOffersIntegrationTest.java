@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 import java.util.List;
 
@@ -100,5 +101,36 @@ public class TypicalScenarioUserWantToSeeOffersIntegrationTest extends BaseInteg
         //  step 13: there are 2 new offers in external HTTP server
         //  step 14: scheduler ran 3rd time and made GET to external server and system added 2 new offers with ids: 3000 and 4000 to database
         //  step 15: user made GET /offers with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 4 offers with ids: 1000,2000, 3000 and 4000
+
+        //step 16: user made POST /offers with header “Authorization: Bearer AAAA.BBBB.CCC” and offer as body and system returned CREATED(201) with saved offer
+        // given
+        String requestJson = """
+                {
+                    "companyName": "Amazon",
+                    "position": "Java Developer",
+                    "salary": "15000 PLN",
+                    "offerUrl": "https://amazon.com/careers/java-developer"
+                }
+                """;
+
+        // when
+        ResultActions performPostOffer = mockMvc.perform(post("/offers")
+                .content(requestJson)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+        );
+        // then
+        MvcResult mvcResultPostOffer = performPostOffer.andExpect(status().isCreated()).andReturn();
+        String jsonPostOffer = mvcResultPostOffer.getResponse().getContentAsString();
+        OfferResponseDto postOffer = objectMapper.readValue(jsonPostOffer, OfferResponseDto.class);
+        assertThat(postOffer.companyName().equals("Amazon")).isTrue();
+
+        //step 17: user made GET /offers with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 1 offer
+        // given & when
+        ResultActions performGetOffer = mockMvc.perform(get("/offers"));
+        // then
+        MvcResult mvcResultGetOffer = performGetOffer.andExpect(status().isOk()).andReturn();
+//        String jsonGetOffer = mvcResultGetOffer.getResponse().getContentAsString();
+//        OfferResponseDto getOffer = objectMapper.readValue(jsonGetOffer, OfferResponseDto.class);
+//        assertThat(getOffer.companyName().equals("Amazon")).isTrue();
     }
 }
