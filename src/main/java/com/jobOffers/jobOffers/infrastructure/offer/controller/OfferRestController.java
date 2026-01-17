@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -31,7 +32,7 @@ public class OfferRestController {
     }
 
     @PostMapping
-    public ResponseEntity<OfferResponseDto> saveOffer(@RequestBody OfferRequestDto offerRequestDto) {
+    public ResponseEntity<OfferResponseDto> saveOffer(@RequestBody @Valid OfferRequestDto offerRequestDto) {
         OfferResponseDto offerResponseDto = offerFacade.saveOffer(offerRequestDto);
         return ResponseEntity
                 .status(HttpStatus.CREATED)

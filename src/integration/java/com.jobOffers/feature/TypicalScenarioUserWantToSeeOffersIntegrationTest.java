@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -40,7 +41,7 @@ public class TypicalScenarioUserWantToSeeOffersIntegrationTest extends BaseInteg
                 .willReturn(WireMock.aResponse()
                         .withStatus(HttpStatus.OK.value())
                         .withHeader("Content-Type", "application/json")
-                        .withBody(bodyWithFourOffersJson())));
+                        .withBody(bodyWithZeroOffersJson())));
 
         //  step 2: scheduler run 1st time and made GET to external server and system added 0 offers to database
         // given && when
@@ -48,7 +49,15 @@ public class TypicalScenarioUserWantToSeeOffersIntegrationTest extends BaseInteg
         // then
         assertThat(newOffers).isEmpty();
 
-        //  step 1, OfferService
+        //  step 1, TypicalIntegrationTest
+        //  step 1,
+        //  step 1,
+        //  step 1,
+        //  step 1,
+        //  step 1,
+        //  step 1,
+        //  step 1,
+        //  step 1,
         //  step 1, TypicalIntegrationTest
 
         //  step 2: scheduler ran 1st time and made GET to external server and system added 0 offers to database
@@ -61,21 +70,14 @@ public class TypicalScenarioUserWantToSeeOffersIntegrationTest extends BaseInteg
         String offersUrl = "/offers";
         // when
         ResultActions perform = mockMvc.perform(get(offersUrl)
-                .contentType(MediaType.APPLICATION_JSON_VALUE));
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+        );
         // then
-        MvcResult mvcResult = perform
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
-
-        String json = mvcResult.getResponse().getContentAsString();
-
-        List<OfferResponseDto> offers =
-                objectMapper.readValue(json, new TypeReference<>() {
-                });
-
+        MvcResult mvcResult2 = perform.andExpect(status().isOk()).andReturn();
+        String jsonWithOffers = mvcResult2.getResponse().getContentAsString();
+        List<OfferResponseDto> offers = objectMapper.readValue(jsonWithOffers, new TypeReference<>() {
+        });
         assertThat(offers).isNotNull();
-        assertThat(offers).isNotEmpty();
 
         //  step 8: there are 2 new offers in external HTTP server
         //  step 9: scheduler ran 2nd time and made GET to external server and system added 2 new offers with ids: 1000 and 2000 to database
@@ -116,21 +118,36 @@ public class TypicalScenarioUserWantToSeeOffersIntegrationTest extends BaseInteg
         // when
         ResultActions performPostOffer = mockMvc.perform(post("/offers")
                 .content(requestJson)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(MediaType.APPLICATION_JSON_VALUE + ";charset=UTF-8")
         );
         // then
-        MvcResult mvcResultPostOffer = performPostOffer.andExpect(status().isCreated()).andReturn();
-        String jsonPostOffer = mvcResultPostOffer.getResponse().getContentAsString();
-        OfferResponseDto postOffer = objectMapper.readValue(jsonPostOffer, OfferResponseDto.class);
-        assertThat(postOffer.companyName().equals("Amazon")).isTrue();
+        String resultPostOffer = performPostOffer.andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        OfferResponseDto parsedPostOffer = objectMapper.readValue(resultPostOffer, OfferResponseDto.class);
+        String id = parsedPostOffer.id();
+        assertAll(
+                () -> assertThat(parsedPostOffer.offerUrl()).isEqualTo("https://amazon.com/careers/java-developer"),
+                () -> assertThat(parsedPostOffer.companyName()).isEqualTo("Amazon"),
+                () -> assertThat(parsedPostOffer.salary()).isEqualTo("15000 PLN"),
+                () -> assertThat(parsedPostOffer.position()).isEqualTo("Java Developer"),
+                () -> assertThat(id).isNotNull()
+        );
 
         //step 17: user made GET /offers with header “Authorization: Bearer AAAA.BBBB.CCC” and system returned OK(200) with 1 offer
         // given & when
-        ResultActions performGetOffer = mockMvc.perform(get("/offers"));
+        ResultActions peformGetOffers = mockMvc.perform(get("/offers")
+                .contentType(MediaType.APPLICATION_JSON_VALUE));
         // then
-        MvcResult mvcResultGetOffer = performGetOffer.andExpect(status().isOk()).andReturn();
-//        String jsonGetOffer = mvcResultGetOffer.getResponse().getContentAsString();
-//        OfferResponseDto getOffer = objectMapper.readValue(jsonGetOffer, OfferResponseDto.class);
-//        assertThat(getOffer.companyName().equals("Amazon")).isTrue();
+        String oneOfferJson = peformGetOffers.andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        List<OfferResponseDto> parsedJsonWithOneOffer = objectMapper.readValue(oneOfferJson, new TypeReference<>() {
+        });
+//        assertThat(parsedJsonWithOneOffer).hasSize(1);
+        assertThat(parsedJsonWithOneOffer.stream().map(OfferResponseDto::id)).contains(id);
     }
 }

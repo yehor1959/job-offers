@@ -32,7 +32,8 @@ public class OfferHttpClient implements OfferFetcher {
         try {
             String urlForService = getUrlForService("/offers");
             String url = UriComponentsBuilder.fromHttpUrl(urlForService).toUriString();
-            ResponseEntity<List<JobOfferResponse>> response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, new ParameterizedTypeReference<>() {
+            ResponseEntity<List<JobOfferResponse>> response = restTemplate.exchange(url, HttpMethod.GET, requestEntity,
+                    new ParameterizedTypeReference<>() {
             });
             final List<JobOfferResponse> body = response.getBody();
             if (body == null) {
