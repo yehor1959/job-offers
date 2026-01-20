@@ -28,7 +28,7 @@ public class OfferControllerErrorHandler {
     @ExceptionHandler(DuplicateKeyException.class)
     @ResponseBody
     public OfferPostErrorResponse offerDuplicate(DuplicateKeyException duplicateKeyException) {
-        final String message = "Offer url already exists";
+        final String message = duplicateKeyException.getMessage();
         log.error(message);
         return new OfferPostErrorResponse(Collections.singletonList(message), HttpStatus.CONFLICT);
     }

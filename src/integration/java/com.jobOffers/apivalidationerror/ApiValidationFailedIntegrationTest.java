@@ -20,7 +20,7 @@ public class ApiValidationFailedIntegrationTest extends BaseIntegrationTest {
                 {
                     "companyName": "",
                     "position": "",
-                    "salary": "",
+                    "salary": ""
                 }
                 """;
 
