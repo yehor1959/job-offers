@@ -54,7 +54,7 @@ public class TypicalScenarioUserWantToSeeOffersIntegrationTest extends BaseInteg
         //  step 1,
         //  step 1,
         //  step 1,
-        //  step 1,
+        //  step 1, OfferUrlDuplicateErrorIntegrationTest
         //  step 1,
         //  step 1,
         //  step 1,

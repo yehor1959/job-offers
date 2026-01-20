@@ -1,5 +1,6 @@
 package com.jobOffers.jobOffers.domain.offer;
 
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,15 +25,7 @@ public class InMemoryOfferRepository implements OfferRepository {
                 .stream()
                 .filter(offer -> offer.offerUrl().equals(offerUrl))
                 .count();
-
         return count == 1;
-    }
-
-    @Override
-    public <S extends Offer> List<S> saveAll(Iterable<S> entities) {
-        return StreamSupport.stream(entities.spliterator(), false)
-                .map(this::save)
-                .toList();
     }
 
     @Override
@@ -48,7 +41,7 @@ public class InMemoryOfferRepository implements OfferRepository {
     @Override
     public <S extends Offer> S save(S entity) {
         if (database.values().stream().anyMatch(offer -> offer.offerUrl().equals(entity.offerUrl()))) {
-            throw new OfferDuplicateException(entity.offerUrl());
+            throw new DuplicateKeyException(String.format("Offer with offerUrl [%s] already exists", entity.offerUrl()));
         }
         UUID id = UUID.randomUUID();
         Offer offer = new Offer(
@@ -60,6 +53,14 @@ public class InMemoryOfferRepository implements OfferRepository {
         );
         database.put(id.toString(), offer);
         return (S) offer;
+    }
+
+
+    @Override
+    public <S extends Offer> List<S> saveAll(Iterable<S> entities) {
+        return StreamSupport.stream(entities.spliterator(), false)
+                .map(this::save)
+                .toList();
     }
 
     @Override
